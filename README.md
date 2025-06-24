@@ -2,6 +2,8 @@
 
 A modern, scalable leaderboard platform that combines employee recognition and sales performance tracking features.
 
+🌐 **Live Demo**: [https://deusgroup.github.io/Leadr/](https://deusgroup.github.io/Leadr/)
+
 ## Features
 
 - **Employee Recognition**: Points-based achievement system with real-time updates
