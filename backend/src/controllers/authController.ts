@@ -1,14 +1,14 @@
 import { Request, Response } from 'express'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import * as bcrypt from 'bcryptjs'
+import * as jwt from 'jsonwebtoken'
 import { db } from '../config/sqliteDatabase'
-import { users } from '../models/schema'
+import { users } from '../models/sqliteSchema'
 import { eq } from 'drizzle-orm'
 import { logger } from '../utils/logger'
 import { createResponse } from '../utils/response'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'
+const JWT_SECRET: string = process.env.JWT_SECRET || 'fallback-secret'
+const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '7d'
 
 export const authController = {
   async register(req: Request, res: Response) {
@@ -39,20 +39,20 @@ export const authController = {
       const token = jwt.sign(
         { userId: newUser.id, email: newUser.email, userType: newUser.userType },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
       )
 
       // Remove password from response
       const { passwordHash: _, ...userResponse } = newUser
 
       logger.info(`User registered: ${email}`)
-      res.status(201).json(createResponse(true, 'User registered successfully', {
+      return res.status(201).json(createResponse(true, 'User registered successfully', {
         user: userResponse,
         token
       }))
     } catch (error) {
       logger.error('Registration error:', error)
-      res.status(500).json(createResponse(false, 'Registration failed'))
+      return res.status(500).json(createResponse(false, 'Registration failed'))
     }
   },
 
@@ -81,20 +81,20 @@ export const authController = {
       const token = jwt.sign(
         { userId: user.id, email: user.email, userType: user.userType },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
       )
 
       // Remove password from response
       const { passwordHash: _, ...userResponse } = user
 
       logger.info(`User logged in: ${email}`)
-      res.json(createResponse(true, 'Login successful', {
+      return res.json(createResponse(true, 'Login successful', {
         user: userResponse,
         token
       }))
     } catch (error) {
       logger.error('Login error:', error)
-      res.status(500).json(createResponse(false, 'Login failed'))
+      return res.status(500).json(createResponse(false, 'Login failed'))
     }
   },
 
@@ -108,10 +108,10 @@ export const authController = {
       }
 
       const { passwordHash: _, ...userResponse } = user
-      res.json(createResponse(true, 'User retrieved successfully', { user: userResponse }))
+      return res.json(createResponse(true, 'User retrieved successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Get current user error:', error)
-      res.status(500).json(createResponse(false, 'Failed to get user'))
+      return res.status(500).json(createResponse(false, 'Failed to get user'))
     }
   },
 
@@ -132,10 +132,10 @@ export const authController = {
         .returning()
 
       const { passwordHash: _, ...userResponse } = updatedUser
-      res.json(createResponse(true, 'Profile updated successfully', { user: userResponse }))
+      return res.json(createResponse(true, 'Profile updated successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Update profile error:', error)
-      res.status(500).json(createResponse(false, 'Failed to update profile'))
+      return res.status(500).json(createResponse(false, 'Failed to update profile'))
     }
   },
 
@@ -164,20 +164,20 @@ export const authController = {
         .set({ passwordHash: newPasswordHash, updatedAt: new Date() })
         .where(eq(users.id, userId))
 
-      res.json(createResponse(true, 'Password changed successfully'))
+      return res.json(createResponse(true, 'Password changed successfully'))
     } catch (error) {
       logger.error('Change password error:', error)
-      res.status(500).json(createResponse(false, 'Failed to change password'))
+      return res.status(500).json(createResponse(false, 'Failed to change password'))
     }
   },
 
   async refreshToken(req: Request, res: Response) {
     // Implementation for token refresh
-    res.status(501).json(createResponse(false, 'Not implemented'))
+    return res.status(501).json(createResponse(false, 'Not implemented'))
   },
 
   async logout(req: Request, res: Response) {
     // Implementation for logout (token blacklisting if needed)
-    res.json(createResponse(true, 'Logged out successfully'))
+    return res.json(createResponse(true, 'Logged out successfully'))
   }
 }

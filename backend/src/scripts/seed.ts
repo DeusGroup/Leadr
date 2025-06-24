@@ -1,4 +1,4 @@
-import { db } from '../config/database'
+import { db } from '../config/sqliteDatabase'
 import { 
   organizations, 
   users, 
@@ -7,7 +7,7 @@ import {
   achievements, 
   userAchievements,
   salesGoals 
-} from '../models/schema'
+} from '../models/sqliteSchema'
 import { logger } from '../utils/logger'
 import bcrypt from 'bcryptjs'
 

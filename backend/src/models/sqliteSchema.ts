@@ -5,7 +5,7 @@ import {
   real, 
   uniqueIndex
 } from 'drizzle-orm/sqlite-core'
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 
 // Organizations table
 export const organizations = sqliteTable('organizations', {
@@ -15,8 +15,8 @@ export const organizations = sqliteTable('organizations', {
   description: text('description'),
   settings: text('settings'), // JSON string for org settings
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Users table (unified employees and sales reps)
@@ -36,8 +36,8 @@ export const users = sqliteTable('users', {
   avatar: text('avatar'),
   phoneNumber: text('phone_number'),
   lastLoginAt: integer('last_login_at', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 }, (table) => ({
   emailIndex: uniqueIndex('users_email_idx').on(table.email),
   usernameIndex: uniqueIndex('users_username_idx').on(table.username),
@@ -54,8 +54,8 @@ export const leaderboards = sqliteTable('leaderboards', {
   startDate: integer('start_date', { mode: 'timestamp' }),
   endDate: integer('end_date', { mode: 'timestamp' }),
   settings: text('settings'), // JSON string for leaderboard configuration
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Metrics table (unified points and sales data)
@@ -68,9 +68,9 @@ export const metrics = sqliteTable('metrics', {
   description: text('description'),
   source: text('source'), // Where the metric came from
   weight: real('weight').default(1.0), // For weighted calculations
-  recordedAt: integer('recorded_at', { mode: 'timestamp' }).default(Date.now()),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  recordedAt: integer('recorded_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Achievements table
@@ -84,8 +84,8 @@ export const achievements = sqliteTable('achievements', {
   pointsValue: integer('points_value').default(0),
   criteria: text('criteria'), // JSON string for achievement criteria
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // User achievements table (many-to-many)
@@ -93,8 +93,8 @@ export const userAchievements = sqliteTable('user_achievements', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').references(() => users.id),
   achievementId: integer('achievement_id').references(() => achievements.id),
-  earnedAt: integer('earned_at', { mode: 'timestamp' }).default(Date.now()),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
+  earnedAt: integer('earned_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Activity log table
@@ -107,7 +107,7 @@ export const activityLogs = sqliteTable('activity_logs', {
   metadata: text('metadata'), // JSON string for additional data
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Sales goals table
@@ -122,8 +122,8 @@ export const salesGoals = sqliteTable('sales_goals', {
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(Date.now()),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Leaderboard rankings cache table (for performance)
@@ -135,8 +135,8 @@ export const leaderboardRankings = sqliteTable('leaderboard_rankings', {
   score: real('score').notNull(),
   previousRank: integer('previous_rank'),
   rankChange: integer('rank_change'),
-  calculatedAt: integer('calculated_at', { mode: 'timestamp' }).default(Date.now()),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(Date.now()),
+  calculatedAt: integer('calculated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`),
 })
 
 // Define relations

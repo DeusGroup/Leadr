@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { db } from '../config/sqliteDatabase'
-import { leaderboards, leaderboardRankings, users, metrics } from '../models/schema'
+import { leaderboards, leaderboardRankings, users, metrics } from '../models/sqliteSchema'
 import { eq, desc, and, sql } from 'drizzle-orm'
 import { logger } from '../utils/logger'
 import { createResponse } from '../utils/response'
@@ -11,10 +11,10 @@ export const leaderboardController = {
       const { type, isActive } = req.query
 
       let query = db.select().from(leaderboards)
-      const conditions = []
+      const conditions: any[] = []
 
       if (type) {
-        conditions.push(eq(leaderboards.type, type as any))
+        conditions.push(eq(leaderboards.type, type as 'employee' | 'sales' | 'mixed'))
       }
 
       if (isActive !== undefined) {
@@ -22,7 +22,7 @@ export const leaderboardController = {
       }
 
       if (conditions.length > 0) {
-        query = query.where(and(...conditions))
+        query = query.where(and(...conditions)) as any
       }
 
       const allLeaderboards = await query.orderBy(desc(leaderboards.createdAt))
@@ -49,12 +49,12 @@ export const leaderboardController = {
         return res.status(404).json(createResponse(false, 'Leaderboard not found'))
       }
 
-      res.json(createResponse(true, 'Leaderboard retrieved successfully', {
+      return res.json(createResponse(true, 'Leaderboard retrieved successfully', {
         leaderboard
       }))
     } catch (error) {
       logger.error('Get leaderboard by ID error:', error)
-      res.status(500).json(createResponse(false, 'Failed to get leaderboard'))
+      return res.status(500).json(createResponse(false, 'Failed to get leaderboard'))
     }
   },
 
@@ -124,12 +124,12 @@ export const leaderboardController = {
         return res.status(404).json(createResponse(false, 'User ranking not found'))
       }
 
-      res.json(createResponse(true, 'User ranking retrieved successfully', {
+      return res.json(createResponse(true, 'User ranking retrieved successfully', {
         ranking
       }))
     } catch (error) {
       logger.error('Get user ranking error:', error)
-      res.status(500).json(createResponse(false, 'Failed to get user ranking'))
+      return res.status(500).json(createResponse(false, 'Failed to get user ranking'))
     }
   },
 
@@ -178,12 +178,12 @@ export const leaderboardController = {
         return res.status(404).json(createResponse(false, 'Leaderboard not found'))
       }
 
-      res.json(createResponse(true, 'Leaderboard updated successfully', {
+      return res.json(createResponse(true, 'Leaderboard updated successfully', {
         leaderboard: updatedLeaderboard
       }))
     } catch (error) {
       logger.error('Update leaderboard error:', error)
-      res.status(500).json(createResponse(false, 'Failed to update leaderboard'))
+      return res.status(500).json(createResponse(false, 'Failed to update leaderboard'))
     }
   },
 
@@ -199,10 +199,10 @@ export const leaderboardController = {
         return res.status(404).json(createResponse(false, 'Leaderboard not found'))
       }
 
-      res.json(createResponse(true, 'Leaderboard deleted successfully'))
+      return res.json(createResponse(true, 'Leaderboard deleted successfully'))
     } catch (error) {
       logger.error('Delete leaderboard error:', error)
-      res.status(500).json(createResponse(false, 'Failed to delete leaderboard'))
+      return res.status(500).json(createResponse(false, 'Failed to delete leaderboard'))
     }
   },
 
@@ -221,7 +221,7 @@ export const leaderboardController = {
       }
 
       // Calculate rankings based on leaderboard type
-      let rankings = []
+      let rankings: Array<{ userId: number | null; score: number }> = []
 
       if (leaderboard.type === 'employee') {
         // Sum points for each user
@@ -248,31 +248,35 @@ export const leaderboardController = {
         .orderBy(desc(sql`SUM(CAST(${metrics.value} AS DECIMAL) * CAST(${metrics.weight} AS DECIMAL))`))
       }
 
-      // Update rankings table
-      for (let i = 0; i < rankings.length; i++) {
-        const ranking = rankings[i]
-        await db.insert(leaderboardRankings).values({
-          leaderboardId: Number(id),
-          userId: ranking.userId,
-          rank: i + 1,
-          score: String(ranking.score),
-          calculatedAt: new Date()
-        }).onConflictDoUpdate({
-          target: [leaderboardRankings.leaderboardId, leaderboardRankings.userId],
-          set: {
+      // Filter out null userId values and update rankings table
+      const validRankings = rankings.filter(r => r.userId !== null)
+      
+      for (let i = 0; i < validRankings.length; i++) {
+        const ranking = validRankings[i]
+        if (ranking.userId !== null) {
+          await db.insert(leaderboardRankings).values({
+            leaderboardId: Number(id),
+            userId: ranking.userId,
             rank: i + 1,
-            score: String(ranking.score),
+            score: Number(ranking.score),
             calculatedAt: new Date()
-          }
-        })
+          }).onConflictDoUpdate({
+            target: [leaderboardRankings.leaderboardId, leaderboardRankings.userId],
+            set: {
+              rank: i + 1,
+              score: Number(ranking.score),
+              calculatedAt: new Date()
+            }
+          })
+        }
       }
 
-      res.json(createResponse(true, 'Rankings calculated successfully', {
-        totalRankings: rankings.length
+      return res.json(createResponse(true, 'Rankings calculated successfully', {
+        totalRankings: validRankings.length
       }))
     } catch (error) {
       logger.error('Calculate rankings error:', error)
-      res.status(500).json(createResponse(false, 'Failed to calculate rankings'))
+      return res.status(500).json(createResponse(false, 'Failed to calculate rankings'))
     }
   }
 }

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 import { db } from '../config/sqliteDatabase'
-import { users } from '../models/schema'
-import { eq, like, and } from 'drizzle-orm'
+import { users } from '../models/sqliteSchema'
+import { eq, like, and, or } from 'drizzle-orm'
 import { logger } from '../utils/logger'
 import { createResponse } from '../utils/response'
-import bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcryptjs'
 
 export const userController = {
   async getUsers(req: Request, res: Response) {
@@ -12,11 +12,11 @@ export const userController = {
       const { search, department, userType, page = 1, limit = 20 } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = db.select().from(users)
       const conditions = []
+      const searchConditions = []
 
       if (search) {
-        conditions.push(
+        searchConditions.push(
           like(users.firstName, `%${search}%`),
           like(users.lastName, `%${search}%`),
           like(users.email, `%${search}%`)
@@ -31,16 +31,27 @@ export const userController = {
         conditions.push(eq(users.userType, userType as any))
       }
 
+      // Combine search conditions with OR, other conditions with AND
+      const whereConditions = []
+      if (searchConditions.length > 0) {
+        whereConditions.push(or(...searchConditions))
+      }
       if (conditions.length > 0) {
-        query = query.where(and(...conditions))
+        whereConditions.push(...conditions)
       }
 
-      const allUsers = await query.limit(Number(limit)).offset(offset)
+      // Build query without reassignment to avoid TypeScript inference issues
+      const baseQuery = db.select().from(users)
+      const finalQuery = whereConditions.length > 0 
+        ? baseQuery.where(and(...whereConditions))
+        : baseQuery
+      
+      const allUsers = await finalQuery.limit(Number(limit)).offset(offset)
 
       // Remove password hashes from response
       const usersResponse = allUsers.map(({ passwordHash, ...user }) => user)
 
-      res.json(createResponse(true, 'Users retrieved successfully', {
+      return res.json(createResponse(true, 'Users retrieved successfully', {
         users: usersResponse,
         pagination: {
           page: Number(page),
@@ -50,7 +61,7 @@ export const userController = {
       }))
     } catch (error) {
       logger.error('Get users error:', error)
-      res.status(500).json(createResponse(false, 'Failed to get users'))
+      return res.status(500).json(createResponse(false, 'Failed to get users'))
     }
   },
 
@@ -64,10 +75,10 @@ export const userController = {
       }
 
       const { passwordHash, ...userResponse } = user
-      res.json(createResponse(true, 'User retrieved successfully', { user: userResponse }))
+      return res.json(createResponse(true, 'User retrieved successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Get user by ID error:', error)
-      res.status(500).json(createResponse(false, 'Failed to get user'))
+      return res.status(500).json(createResponse(false, 'Failed to get user'))
     }
   },
 
@@ -98,10 +109,10 @@ export const userController = {
 
       const { passwordHash: _, ...userResponse } = newUser
       logger.info(`User created: ${email}`)
-      res.status(201).json(createResponse(true, 'User created successfully', { user: userResponse }))
+      return res.status(201).json(createResponse(true, 'User created successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Create user error:', error)
-      res.status(500).json(createResponse(false, 'Failed to create user'))
+      return res.status(500).json(createResponse(false, 'Failed to create user'))
     }
   },
 
@@ -128,10 +139,10 @@ export const userController = {
       }
 
       const { passwordHash, ...userResponse } = updatedUser
-      res.json(createResponse(true, 'User updated successfully', { user: userResponse }))
+      return res.json(createResponse(true, 'User updated successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Update user error:', error)
-      res.status(500).json(createResponse(false, 'Failed to update user'))
+      return res.status(500).json(createResponse(false, 'Failed to update user'))
     }
   },
 
@@ -144,10 +155,10 @@ export const userController = {
         return res.status(404).json(createResponse(false, 'User not found'))
       }
 
-      res.json(createResponse(true, 'User deleted successfully'))
+      return res.json(createResponse(true, 'User deleted successfully'))
     } catch (error) {
       logger.error('Delete user error:', error)
-      res.status(500).json(createResponse(false, 'Failed to delete user'))
+      return res.status(500).json(createResponse(false, 'Failed to delete user'))
     }
   },
 
@@ -166,10 +177,10 @@ export const userController = {
       }
 
       const { passwordHash, ...userResponse } = updatedUser
-      res.json(createResponse(true, 'User status updated successfully', { user: userResponse }))
+      return res.json(createResponse(true, 'User status updated successfully', { user: userResponse }))
     } catch (error) {
       logger.error('Update user status error:', error)
-      res.status(500).json(createResponse(false, 'Failed to update user status'))
+      return res.status(500).json(createResponse(false, 'Failed to update user status'))
     }
   }
 }

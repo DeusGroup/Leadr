@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { db } from '../config/database'
-import { users } from '../models/schema'
+import { db } from '../config/sqliteDatabase'
+import { users } from '../models/sqliteSchema'
 import { eq } from 'drizzle-orm'
 import { logger } from '../utils/logger'
 import { createResponse } from '../utils/response'
@@ -40,7 +40,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     (req as AuthenticatedRequest).userEmail = decoded.email;
     (req as AuthenticatedRequest).userType = decoded.userType
 
-    next()
+    return next()
   } catch (error) {
     logger.error('Authentication error:', error)
     return res.status(403).json(createResponse(false, 'Invalid token'))
@@ -55,7 +55,7 @@ export const requireRole = (allowedRoles: string[]) => {
       return res.status(403).json(createResponse(false, 'Insufficient permissions'))
     }
 
-    next()
+    return next()
   }
 }
 
@@ -75,6 +75,6 @@ export const requireOwnership = (userIdParam: string = 'userId') => {
       return res.status(403).json(createResponse(false, 'Can only access your own resources'))
     }
 
-    next()
+    return next()
   }
 }

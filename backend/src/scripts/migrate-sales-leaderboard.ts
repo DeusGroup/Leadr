@@ -6,7 +6,7 @@ import {
   metrics, 
   salesGoals,
   organizations 
-} from '../models/schema'
+} from '../models/sqliteSchema'
 import { logger } from '../utils/logger'
 import { eq } from 'drizzle-orm'
 

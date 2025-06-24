@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { db } from '../config/sqliteDatabase'
-import { metrics, users, leaderboards, salesGoals, userAchievements, achievements } from '../models/schema'
+import { metrics, users, leaderboards, salesGoals, userAchievements, achievements } from '../models/sqliteSchema'
 import { eq, and, desc, sum, count, avg, sql, gte, lte } from 'drizzle-orm'
 import { logger } from '../utils/logger'
 import { createResponse } from '../utils/response'

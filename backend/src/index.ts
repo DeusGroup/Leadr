@@ -7,7 +7,7 @@ import { Server } from 'socket.io'
 
 import { errorHandler } from './middleware/errorHandler'
 import { logger } from './utils/logger'
-import { connectDatabase } from './config/database'
+import { connectDatabase } from './config/sqliteDatabase'
 
 // Routes
 import authRoutes from './routes/auth'

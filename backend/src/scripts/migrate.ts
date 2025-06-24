@@ -1,5 +1,5 @@
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { db } from '../config/database'
+import { db } from '../config/sqliteDatabase'
 import { logger } from '../utils/logger'
 
 async function runMigrations() {
