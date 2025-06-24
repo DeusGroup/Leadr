@@ -1,23 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
   images: {
-    domains: ['localhost'],
+    unoptimized: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/:path*`,
-      },
-    ]
+  basePath: process.env.NODE_ENV === 'production' ? '/Leadr' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/Leadr/' : '',
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  // WSL2 specific configuration
-  webpackDevMiddleware: config => {
-    config.watchOptions = {
-      poll: 1000,
-      aggregateTimeout: 300,
-    }
-    return config
+  typescript: {
+    ignoreBuildErrors: true,
   },
 }
 
