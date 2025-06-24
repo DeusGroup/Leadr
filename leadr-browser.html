@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leadr - Unified Leaderboard Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        
+        .tab {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #333;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .leaderboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .user-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .user-details h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .user-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .add-form {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .rank-badge {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Leadr</h1>
+            <p>Unified Leaderboard Platform - Browser Edition</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="showTab('employees')">Employee Recognition</button>
+            <button class="tab" onclick="showTab('sales')">Sales Performance</button>
+            <button class="tab" onclick="showTab('admin')">Admin</button>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-employees">0</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-points">0</div>
+                    <div class="stat-label">Total Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-sales">$0</div>
+                    <div class="stat-label">Total Sales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-performance">0%</div>
+                    <div class="stat-label">Avg Performance</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🌟 Top Performers</h2>
+                <div id="top-performers"></div>
+            </div>
+        </div>
+        
+        <!-- Employee Recognition Tab -->
+        <div id="employees" class="tab-content">
+            <div class="card">
+                <h2>🎯 Employee Recognition Leaderboard</h2>
+                <div id="employee-leaderboard"></div>
+                
+                <div class="add-form">
+                    <h3>Add Points</h3>
+                    <div class="form-group">
+                        <label>Employee</label>
+                        <select id="employee-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Points</label>
+                        <input type="number" id="points-input" placeholder="Enter points">
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type="text" id="reason-input" placeholder="Recognition reason">
+                    </div>
+                    <button class="btn" onclick="addPoints()">Add Points</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sales Performance Tab -->
+        <div id="sales" class="tab-content">
+            <div class="card">
+                <h2>📊 Sales Performance Leaderboard</h2>
+                <div id="sales-leaderboard"></div>
+                
+                <div class="add-form">
+                    <h3>Record Sale</h3>
+                    <div class="form-group">
+                        <label>Sales Rep</label>
+                        <select id="sales-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Amount ($)</label>
+                        <input type="number" id="sale-amount" placeholder="Enter sale amount">
+                    </div>
+                    <div class="form-group">
+                        <label>Client</label>
+                        <input type="text" id="client-input" placeholder="Client name">
+                    </div>
+                    <button class="btn" onclick="recordSale()">Record Sale</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Tab -->
+        <div id="admin" class="tab-content">
+            <div class="card">
+                <h2>👥 Manage Users</h2>
+                <div class="add-form">
+                    <h3>Add New User</h3>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="user-name" placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="user-email" placeholder="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" id="user-department" placeholder="Department">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="user-role">
+                            <option value="employee">Employee</option>
+                            <option value="sales_rep">Sales Rep</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="addUser()">Add User</button>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h3>Data Management</h3>
+                    <button class="btn" onclick="exportData()">Export Data</button>
+                    <button class="btn" onclick="resetData()" style="background: #dc3545; margin-left: 10px;">Reset All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Browser Storage Database
+        class BrowserDB {
+            constructor() {
+                this.initializeData();
+            }
+            
+            initializeData() {
+                if (!localStorage.getItem('leadr_users')) {
+                    const sampleData = {
+                        users: [
+                            { id: 1, name: 'John Doe', email: 'john@example.com', department: 'Engineering', role: 'employee', points: 850, sales: 0 },
+                            { id: 2, name: 'Jane Smith', email: 'jane@example.com', department: 'Sales', role: 'sales_rep', points: 320, sales: 45000 },
+                            { id: 3, name: 'Mike Johnson', email: 'mike@example.com', department: 'Marketing', role: 'employee', points: 720, sales: 0 },
+                            { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', department: 'Sales', role: 'sales_rep', points: 180, sales: 62000 },
+                            { id: 5, name: 'David Brown', email: 'david@example.com', department: 'Engineering', role: 'employee', points: 940, sales: 0 }
+                        ],
+                        activities: []
+                    };
+                    this.saveData(sampleData);
+                }
+            }
+            
+            getData() {
+                return JSON.parse(localStorage.getItem('leadr_users') || '{}');
+            }
+            
+            saveData(data) {
+                localStorage.setItem('leadr_users', JSON.stringify(data));
+            }
+            
+            getUsers() {
+                return this.getData().users || [];
+            }
+            
+            addUser(user) {
+                const data = this.getData();
+                const newId = Math.max(...data.users.map(u => u.id), 0) + 1;
+                user.id = newId;
+                user.points = 0;
+                user.sales = 0;
+                data.users.push(user);
+                this.saveData(data);
+            }
+            
+            updateUser(id, updates) {
+                const data = this.getData();
+                const userIndex = data.users.findIndex(u => u.id === id);
+                if (userIndex !== -1) {
+                    data.users[userIndex] = { ...data.users[userIndex], ...updates };
+                    this.saveData(data);
+                }
+            }
+            
+            addActivity(activity) {
+                const data = this.getData();
+                if (!data.activities) data.activities = [];
+                data.activities.push({
+                    ...activity,
+                    timestamp: new Date().toISOString()
+                });
+                this.saveData(data);
+            }
+        }
+        
+        const db = new BrowserDB();
+        
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Refresh content
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'employees') updateEmployeeLeaderboard();
+            if (tabName === 'sales') updateSalesLeaderboard();
+            if (tabName === 'admin') updateAdmin();
+        }
+        
+        // Dashboard Functions
+        function updateDashboard() {
+            const users = db.getUsers();
+            const totalEmployees = users.length;
+            const totalPoints = users.reduce((sum, user) => sum + user.points, 0);
+            const totalSales = users.reduce((sum, user) => sum + user.sales, 0);
+            const avgPerformance = totalEmployees > 0 ? Math.round((totalPoints + totalSales/1000) / totalEmployees) : 0;
+            
+            document.getElementById('total-employees').textContent = totalEmployees;
+            document.getElementById('total-points').textContent = totalPoints.toLocaleString();
+            document.getElementById('total-sales').textContent = '$' + totalSales.toLocaleString();
+            document.getElementById('avg-performance').textContent = avgPerformance + '%';
+            
+            // Top performers
+            const topPerformers = [...users]
+                .sort((a, b) => (b.points + b.sales/100) - (a.points + a.sales/100))
+                .slice(0, 3);
+            
+            const topPerformersHTML = topPerformers.map((user, index) => `
+                <div class="user-card">
+                    <div class="user-info">
+                        <div class="rank-badge rank-${index + 1}">${index + 1}</div>
+                        <div class="avatar">${user.name.split(' ').map(n => n[0]).join('')}</div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>${user.department}</p>
+                        </div>
+                    </div>
+                    <div class="score">${user.points + Math.round(user.sales/100)} pts</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('top-performers').innerHTML = topPerformersHTML;
+        }
+        
+        // Employee Recognition Functions
+        function updateEmployeeLeaderboard() {
+            const users = db.getUsers()
+                .filter(user => user.role === 'employee' || user.role === 'manager')
+                .sort((a, b) => b.points - a.points);
+            
+            const leaderboardHTML = users.map((user, index) => `
+                <div class="user-card">
+                    <div class="user-info">
+                        <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : ''}">${index + 1}</div>
+                        <div class="avatar">${user.name.split(' ').map(n => n[0]).join('')}</div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>${user.department}</p>
+                        </div>
+                    </div>
+                    <div class="score">${user.points} pts</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('employee-leaderboard').innerHTML = leaderboardHTML;
+            
+            // Update employee select
+            const employeeSelect = document.getElementById('employee-select');
+            employeeSelect.innerHTML = users.map(user => 
+                `<option value="${user.id}">${user.name}</option>`
+            ).join('');
+        }
+        
+        // Sales Performance Functions
+        function updateSalesLeaderboard() {
+            const users = db.getUsers()
+                .filter(user => user.role === 'sales_rep')
+                .sort((a, b) => b.sales - a.sales);
+            
+            const leaderboardHTML = users.map((user, index) => `
+                <div class="user-card">
+                    <div class="user-info">
+                        <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : ''}">${index + 1}</div>
+                        <div class="avatar">${user.name.split(' ').map(n => n[0]).join('')}</div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>${user.department}</p>
+                        </div>
+                    </div>
+                    <div class="score">$${user.sales.toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('sales-leaderboard').innerHTML = leaderboardHTML;
+            
+            // Update sales select
+            const salesSelect = document.getElementById('sales-select');
+            salesSelect.innerHTML = users.map(user => 
+                `<option value="${user.id}">${user.name}</option>`
+            ).join('');
+        }
+        
+        // Admin Functions
+        function updateAdmin() {
+            // Admin panel is mostly forms, no dynamic updates needed
+        }
+        
+        // Action Functions
+        function addPoints() {
+            const userId = parseInt(document.getElementById('employee-select').value);
+            const points = parseInt(document.getElementById('points-input').value);
+            const reason = document.getElementById('reason-input').value;
+            
+            if (!userId || !points || !reason) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const user = db.getUsers().find(u => u.id === userId);
+            db.updateUser(userId, { points: user.points + points });
+            db.addActivity({
+                type: 'points',
+                userId,
+                amount: points,
+                reason
+            });
+            
+            document.getElementById('points-input').value = '';
+            document.getElementById('reason-input').value = '';
+            
+            updateEmployeeLeaderboard();
+            alert(`Added ${points} points to ${user.name}!`);
+        }
+        
+        function recordSale() {
+            const userId = parseInt(document.getElementById('sales-select').value);
+            const amount = parseInt(document.getElementById('sale-amount').value);
+            const client = document.getElementById('client-input').value;
+            
+            if (!userId || !amount || !client) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const user = db.getUsers().find(u => u.id === userId);
+            db.updateUser(userId, { sales: user.sales + amount });
+            db.addActivity({
+                type: 'sale',
+                userId,
+                amount,
+                client
+            });
+            
+            document.getElementById('sale-amount').value = '';
+            document.getElementById('client-input').value = '';
+            
+            updateSalesLeaderboard();
+            alert(`Recorded $${amount.toLocaleString()} sale for ${user.name}!`);
+        }
+        
+        function addUser() {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const department = document.getElementById('user-department').value;
+            const role = document.getElementById('user-role').value;
+            
+            if (!name || !email || !department) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            db.addUser({ name, email, department, role });
+            
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-email').value = '';
+            document.getElementById('user-department').value = '';
+            
+            alert(`Added ${name} successfully!`);
+            updateEmployeeLeaderboard();
+            updateSalesLeaderboard();
+        }
+        
+        function exportData() {
+            const data = db.getData();
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'leadr-data.json';
+            link.click();
+        }
+        
+        function resetData() {
+            if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                localStorage.removeItem('leadr_users');
+                db.initializeData();
+                location.reload();
+            }
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            updateEmployeeLeaderboard();
+            updateSalesLeaderboard();
+        });
+    </script>
+</body>
+</html>
