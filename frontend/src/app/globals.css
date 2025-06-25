@@ -4,6 +4,10 @@
 
 @layer base {
   :root {
+    /* Enhanced Design System Colors */
+    --primary-600: #3b82f6;
+    --primary-700: #2563eb;
+    --secondary-500: #10b981;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -24,6 +28,21 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    
+    /* Glass-morphism */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    
+    /* Success/Warning/Error */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    
+    /* Animation timing */
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 400ms;
   }
 
   .dark {
@@ -46,6 +65,11 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
+    /* Dark theme glass-morphism */
+    --glass-bg: rgba(30, 41, 59, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -58,21 +82,89 @@
   }
 }
 
-/* Leaderboard specific styles */
+/* Enhanced Leaderboard & Animation Styles */
 .leaderboard-animation {
-  @apply transition-all duration-300 ease-in-out;
+  transition: all var(--transition-normal) ease-in-out;
 }
 
-.leaderboard-rank-1 {
-  @apply bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900;
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
 }
 
-.leaderboard-rank-2 {
-  @apply bg-gradient-to-r from-gray-300 to-gray-500 text-gray-900;
+.rank-badge-1 {
+  @apply bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900 relative;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
-.leaderboard-rank-3 {
-  @apply bg-gradient-to-r from-amber-600 to-amber-800 text-amber-100;
+.rank-badge-2 {
+  @apply bg-gradient-to-r from-gray-300 to-gray-500 text-gray-900 relative;
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+}
+
+.rank-badge-3 {
+  @apply bg-gradient-to-r from-amber-600 to-amber-800 text-amber-100 relative;
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.5);
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from {
+    box-shadow: 0 0 5px currentColor;
+  }
+  to {
+    box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+.slide-up {
+  animation: slide-up var(--transition-slow) ease-out forwards;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scale-in {
+  animation: scale-in var(--transition-normal) ease-out forwards;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .sales-metric-card {
@@ -81,4 +173,14 @@
 
 .employee-metric-card {
   @apply bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950;
+}
+
+/* Micro-interactions */
+.interactive-hover {
+  transition: all var(--transition-fast) ease-in-out;
+}
+
+.interactive-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
