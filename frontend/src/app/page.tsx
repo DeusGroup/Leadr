@@ -14,6 +14,9 @@ export default function HomePage() {
           Combine employee recognition and sales performance tracking in one powerful, 
           real-time platform that drives engagement and results.
         </p>
+        <div className="mt-4 text-sm text-muted-foreground">
+          ✨ Live Demo - Updated {new Date().toISOString().split('T')[0]}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
