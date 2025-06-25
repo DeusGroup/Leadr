@@ -11,6 +11,7 @@ import { PredictiveInsights } from '@/components/dashboard/PredictiveInsights'
 import { OnboardingTour, useOnboarding } from '@/components/onboarding/OnboardingTour'
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist'
 import { OnboardingWelcome } from '@/components/onboarding/OnboardingWelcome'
+import { Award, TrendingUp } from 'lucide-react'
 
 export default function DashboardPage() {
   const [showChecklist, setShowChecklist] = useState(false)
@@ -23,11 +24,14 @@ export default function DashboardPage() {
   } = useOnboarding()
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Monitor performance across employee recognition and sales metrics
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+          Enterprise Dashboard
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          Real-time insights • AI-powered analytics • Enhanced user experience
         </p>
       </div>
 
@@ -40,17 +44,30 @@ export default function DashboardPage() {
         <PredictiveInsights />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="employee" className="space-y-4">
-            <TabsList className="leaderboard-filters">
-              <TabsTrigger value="employee">Employee Recognition</TabsTrigger>
-              <TabsTrigger value="sales">Sales Performance</TabsTrigger>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 space-y-6">
+          <Tabs defaultValue="employee" className="space-y-6">
+            <TabsList className="leaderboard-filters grid w-full grid-cols-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg border-0 p-1">
+              <TabsTrigger 
+                value="employee" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
+              >
+                Employee Recognition
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sales"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg"
+              >
+                Sales Performance
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="employee">
-              <Card>
+            <TabsContent value="employee" className="space-y-0">
+              <Card className="glass-card border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg">
                 <CardHeader>
-                  <CardTitle>Employee Leaderboard</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-blue-500" />
+                    Employee Leaderboard
+                  </CardTitle>
                   <CardDescription>
                     Top performers in employee recognition and achievements
                   </CardDescription>
@@ -60,10 +77,13 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="sales">
-              <Card>
+            <TabsContent value="sales" className="space-y-0">
+              <Card className="glass-card border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg">
                 <CardHeader>
-                  <CardTitle>Sales Leaderboard</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    Sales Leaderboard
+                  </CardTitle>
                   <CardDescription>
                     Top performers in sales metrics and revenue generation
                   </CardDescription>
@@ -77,17 +97,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="activity-feed">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Latest updates and achievements
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ActivityFeed />
-            </CardContent>
-          </Card>
+          <ActivityFeed />
         </div>
       </div>
 
