@@ -50,7 +50,7 @@ interface PredictiveInsightsProps {
 export function PredictiveInsights({ 
   department = 'all',
   timeRange = 'monthly',
-  refreshInterval = 30000 
+  refreshInterval = 0 
 }: PredictiveInsightsProps) {
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [teamHealth, setTeamHealth] = useState<TeamHealthMetric[]>([])
@@ -397,11 +397,11 @@ export function PredictiveInsights({
             ))}
           </div>
 
-          {/* Refresh indicator */}
+          {/* Static indicator */}
           <div className="mt-4 pt-4 border-t text-center">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Activity className="w-3 h-3" />
-              Updates every {Math.round(refreshInterval / 1000)}s
+              Static data view
             </div>
           </div>
         </CardContent>
