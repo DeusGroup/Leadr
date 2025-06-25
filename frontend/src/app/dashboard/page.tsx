@@ -1,13 +1,27 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmployeeLeaderboard } from '@/components/leaderboards/employee-leaderboard'
 import { SalesLeaderboard } from '@/components/leaderboards/sales-leaderboard'
 import { MetricsOverview } from '@/components/dashboard/metrics-overview'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
+import { PredictiveInsights } from '@/components/dashboard/PredictiveInsights'
+import { OnboardingTour, useOnboarding } from '@/components/onboarding/OnboardingTour'
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist'
+import { OnboardingWelcome } from '@/components/onboarding/OnboardingWelcome'
 
 export default function DashboardPage() {
+  const [showChecklist, setShowChecklist] = useState(false)
+  const { 
+    hasCompletedTour, 
+    showOnboarding, 
+    completeTour, 
+    skipTour, 
+    restartTour 
+  } = useOnboarding()
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,12 +31,19 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <MetricsOverview />
+      <div className="metrics-overview">
+        <MetricsOverview />
+      </div>
+
+      {/* Predictive Insights */}
+      <div className="predictive-insights">
+        <PredictiveInsights />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Tabs defaultValue="employee" className="space-y-4">
-            <TabsList>
+            <TabsList className="leaderboard-filters">
               <TabsTrigger value="employee">Employee Recognition</TabsTrigger>
               <TabsTrigger value="sales">Sales Performance</TabsTrigger>
             </TabsList>
@@ -55,7 +76,7 @@ export default function DashboardPage() {
           </Tabs>
         </div>
 
-        <div>
+        <div className="activity-feed">
           <Card>
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
@@ -69,6 +90,32 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Onboarding Components */}
+      <OnboardingWelcome
+        isVisible={showOnboarding}
+        onStartTour={() => {
+          completeTour()
+          restartTour()
+        }}
+        onShowChecklist={() => {
+          completeTour()
+          setShowChecklist(true)
+        }}
+        onSkip={skipTour}
+      />
+
+      <OnboardingTour
+        isActive={!showOnboarding && !hasCompletedTour}
+        onComplete={completeTour}
+        onSkip={skipTour}
+      />
+
+      <OnboardingChecklist
+        isVisible={showChecklist}
+        onClose={() => setShowChecklist(false)}
+        onStartTour={restartTour}
+      />
     </div>
   )
 }
