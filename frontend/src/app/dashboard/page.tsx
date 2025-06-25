@@ -31,7 +31,7 @@ export default function DashboardPage() {
           Enterprise Dashboard
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Real-time insights • AI-powered analytics • Enhanced user experience
+          Real-time insights • Performance analytics • Enhanced user experience
         </p>
       </div>
 
@@ -40,7 +40,7 @@ export default function DashboardPage() {
         <MetricsOverview />
       </div>
 
-      {/* Predictive Insights */}
+      {/* Performance Insights */}
       <div className="predictive-insights">
         <PredictiveInsights />
       </div>

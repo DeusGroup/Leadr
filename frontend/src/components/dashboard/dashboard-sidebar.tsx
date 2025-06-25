@@ -85,7 +85,7 @@ export function DashboardSidebar() {
                 🚀 Enhanced Dashboard
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                AI-powered insights & real-time features
+                Performance insights & real-time features
               </p>
             </div>
           </div>

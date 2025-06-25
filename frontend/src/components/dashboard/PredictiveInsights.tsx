@@ -50,14 +50,14 @@ interface PredictiveInsightsProps {
 export function PredictiveInsights({ 
   department = 'all',
   timeRange = 'monthly',
-  refreshInterval = 10000 
+  refreshInterval = 30000 
 }: PredictiveInsightsProps) {
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [teamHealth, setTeamHealth] = useState<TeamHealthMetric[]>([])
   const [overallScore, setOverallScore] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Mock AI prediction generator
+  // Mock prediction generator
   const generatePredictions = (): Prediction[] => {
     const employees = ['Sarah Johnson', 'Mike Chen', 'Emily Davis', 'Alex Rodriguez', 'Jessica Kim']
     const departments = ['Sales', 'Engineering', 'Marketing', 'Support']
@@ -216,17 +216,12 @@ export function PredictiveInsights({
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      {/* AI Predictions */}
+      {/* Insights */}
       <Card className="glass-card xl:col-span-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            >
-              <Brain className="w-5 h-5 text-purple-500" />
-            </motion.div>
-            AI Predictions & Insights
+            <Activity className="w-5 h-5 text-purple-500" />
+            Performance Insights
             <Badge variant="outline" className="ml-auto">
               Real-time
             </Badge>
@@ -267,20 +262,9 @@ export function PredictiveInsights({
                     whileHover={{ scale: 1.02, x: 5 }}
                   >
                     <div className="flex items-start gap-3">
-                      <motion.div
-                        className="mt-1"
-                        animate={prediction.severity === 'critical' ? { 
-                          scale: [1, 1.2, 1],
-                          rotate: [0, 5, -5, 0]
-                        } : {}}
-                        transition={{ 
-                          duration: 1,
-                          repeat: prediction.severity === 'critical' ? Infinity : 0,
-                          repeatDelay: 2
-                        }}
-                      >
+                        <div className="mt-1">
                         {getTypeIcon(prediction.type)}
-                      </motion.div>
+                      </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
@@ -319,11 +303,9 @@ export function PredictiveInsights({
                         {/* Confidence bar */}
                         <div className="mt-2">
                           <div className="w-full bg-gray-200 rounded-full h-1">
-                            <motion.div
+                            <div
                               className="h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${prediction.confidence}%` }}
-                              transition={{ duration: 1, delay: index * 0.1 }}
+                              style={{ width: `${prediction.confidence}%` }}
                             />
                           </div>
                         </div>
@@ -335,8 +317,8 @@ export function PredictiveInsights({
 
               {predictions.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  <Brain className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No predictions available</p>
+                  <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No insights available</p>
                 </div>
               )}
             </div>
@@ -355,13 +337,9 @@ export function PredictiveInsights({
         <CardContent>
           {/* Overall Score */}
           <div className="text-center mb-6">
-            <motion.div
-              className={`text-4xl font-bold ${getScoreColor(overallScore)}`}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
-            >
+            <div className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>
               {overallScore}%
-            </motion.div>
+            </div>
             <p className="text-sm text-muted-foreground">Overall Health</p>
             
             {/* Health indicator */}
@@ -422,12 +400,7 @@ export function PredictiveInsights({
           {/* Refresh indicator */}
           <div className="mt-4 pt-4 border-t text-center">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                <Zap className="w-3 h-3" />
-              </motion.div>
+              <Activity className="w-3 h-3" />
               Updates every {Math.round(refreshInterval / 1000)}s
             </div>
           </div>
