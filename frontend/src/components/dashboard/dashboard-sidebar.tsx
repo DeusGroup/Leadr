@@ -30,8 +30,8 @@ export function DashboardSidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="flex w-64 flex-col fixed inset-y-0 z-50 md:static md:z-auto">
-      <div className="flex flex-col flex-grow bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+    <div className="flex w-64 flex-col h-full">
+      <div className="flex flex-col h-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 shadow-lg">
         {/* Logo Section */}
         <div className="flex items-center flex-shrink-0 px-6 py-6 border-b border-gray-200/50 dark:border-gray-700/50">
           <div className="flex items-center gap-3">
