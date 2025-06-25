@@ -200,197 +200,202 @@ export function PredictiveInsights({
   }
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      {/* Insights */}
-      <Card className="glass-card xl:col-span-2">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-purple-500" />
-            Performance Insights
-            <Badge variant="outline" className="ml-auto">
-              Real-time
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 rounded-lg">
-                  <div className="loading-skeleton w-8 h-8 rounded-full"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="loading-skeleton h-4 w-3/4"></div>
-                    <div className="loading-skeleton h-3 w-full"></div>
-                    <div className="loading-skeleton h-3 w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
-                {predictions.map((prediction, index) => (
-                  <motion.div
-                    key={prediction.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`
-                      p-4 rounded-lg border-l-4 transition-all duration-200 hover:shadow-md
-                      ${prediction.severity === 'critical' ? 'border-l-red-500 bg-red-50 dark:bg-red-950/20' :
-                        prediction.severity === 'high' ? 'border-l-orange-500 bg-orange-50 dark:bg-orange-950/20' :
-                        prediction.severity === 'medium' ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' :
-                        'border-l-green-500 bg-green-50 dark:bg-green-950/20'
-                      }
-                    `}
-                    whileHover={{ scale: 1.02, x: 5 }}
-                  >
-                    <div className="flex items-start gap-3">
-                        <div className="mt-1">
+    <>
+      {/* CSS for ticker animation */}
+      <style jsx>{`
+        .ticker-container {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          position: relative;
+        }
+        
+        .ticker-content {
+          display: flex;
+          align-items: center;
+          height: 100%;
+          animation: scroll-left 60s linear infinite;
+          white-space: nowrap;
+        }
+        
+        .ticker-item {
+          display: inline-flex;
+          align-items: center;
+          height: 100%;
+          flex-shrink: 0;
+          min-width: 400px;
+        }
+        
+        @keyframes scroll-left {
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+      `}</style>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Ticker Insights */}
+        <Card className="glass-card xl:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-purple-500" />
+              Performance Insights
+              <Badge variant="outline" className="ml-auto">
+                Live Feed
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="relative h-64 overflow-hidden border-t border-gray-200 dark:border-gray-700">
+              <div className="ticker-container">
+                <div className="ticker-content">
+                  {predictions.map((prediction, index) => (
+                    <div
+                      key={`${prediction.id}-1`}
+                      className="ticker-item flex items-center gap-4 px-6 py-4 border-r border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className={`
+                          w-2 h-2 rounded-full
+                          ${prediction.severity === 'critical' ? 'bg-red-500' :
+                            prediction.severity === 'high' ? 'bg-orange-500' :
+                            prediction.severity === 'medium' ? 'bg-yellow-500' :
+                            'bg-green-500'
+                          }
+                        `} />
                         {getTypeIcon(prediction.type)}
                       </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-semibold text-sm">{prediction.title}</h4>
-                          <Badge 
-                            className={`${getSeverityColor(prediction.severity)} text-xs`}
-                            variant="outline"
-                          >
-                            {prediction.severity.toUpperCase()}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {prediction.confidence}% confidence
-                          </span>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-2">
+                      
+                      <div className="flex-shrink-0">
+                        <span className="font-semibold text-sm mr-2">{prediction.title}</span>
+                        <span className="text-xs text-muted-foreground">
                           {prediction.description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">
-                            {prediction.timeframe}
-                          </span>
-                          
-                          {prediction.actionable && (
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-6 text-xs"
-                            >
-                              Take Action
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* Confidence bar */}
-                        <div className="mt-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1">
-                            <div
-                              className="h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
-                              style={{ width: `${prediction.confidence}%` }}
-                            />
-                          </div>
-                        </div>
+                        </span>
+                        <span className="text-xs text-blue-600 ml-2">
+                          {prediction.confidence}% confidence
+                        </span>
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {predictions.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No insights available</p>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Team Health Score */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-500" />
-            Team Health Score
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Overall Score */}
-          <div className="text-center mb-6">
-            <div className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>
-              {overallScore}%
-            </div>
-            <p className="text-sm text-muted-foreground">Overall Health</p>
-            
-            {/* Health indicator */}
-            <div className="mt-2">
-              <Badge 
-                className={
-                  overallScore >= 90 ? 'bg-green-100 text-green-800' :
-                  overallScore >= 80 ? 'bg-blue-100 text-blue-800' :
-                  overallScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }
-                variant="outline"
-              >
-                {overallScore >= 90 ? 'Excellent' :
-                 overallScore >= 80 ? 'Good' :
-                 overallScore >= 70 ? 'Fair' : 'Needs Attention'}
-              </Badge>
-            </div>
-          </div>
-
-          {/* Individual Metrics */}
-          <div className="space-y-4">
-            {teamHealth.map((metric, index) => (
-              <motion.div
-                key={metric.category}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{metric.category}</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${getScoreColor(metric.score)}`}>
-                      {metric.score}%
-                    </span>
-                    {getTrendIcon(metric.trend)}
-                  </div>
-                </div>
-                
-                <Progress 
-                  value={metric.score} 
-                  className="h-2"
-                />
-                
-                <div className="text-xs text-muted-foreground">
-                  {metric.details.slice(0, 2).map((detail, i) => (
-                    <div key={i} className="flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3 text-green-500" />
-                      {detail}
+                  ))}
+                  {/* Duplicate for seamless loop */}
+                  {predictions.map((prediction, index) => (
+                    <div
+                      key={`${prediction.id}-2`}
+                      className="ticker-item flex items-center gap-4 px-6 py-4 border-r border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className={`
+                          w-2 h-2 rounded-full
+                          ${prediction.severity === 'critical' ? 'bg-red-500' :
+                            prediction.severity === 'high' ? 'bg-orange-500' :
+                            prediction.severity === 'medium' ? 'bg-yellow-500' :
+                            'bg-green-500'
+                          }
+                        `} />
+                        {getTypeIcon(prediction.type)}
+                      </div>
+                      
+                      <div className="flex-shrink-0">
+                        <span className="font-semibold text-sm mr-2">{prediction.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {prediction.description}
+                        </span>
+                        <span className="text-xs text-blue-600 ml-2">
+                          {prediction.confidence}% confidence
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Static indicator */}
-          <div className="mt-4 pt-4 border-t text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Activity className="w-3 h-3" />
-              Static data view
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+
+        {/* Team Health Score */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500" />
+              Team Health Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Overall Score */}
+            <div className="text-center mb-6">
+              <div className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>
+                {overallScore}%
+              </div>
+              <p className="text-sm text-muted-foreground">Overall Health</p>
+              
+              {/* Health indicator */}
+              <div className="mt-2">
+                <Badge 
+                  className={
+                    overallScore >= 90 ? 'bg-green-100 text-green-800' :
+                    overallScore >= 80 ? 'bg-blue-100 text-blue-800' :
+                    overallScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }
+                  variant="outline"
+                >
+                  {overallScore >= 90 ? 'Excellent' :
+                   overallScore >= 80 ? 'Good' :
+                   overallScore >= 70 ? 'Fair' : 'Needs Attention'}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Individual Metrics */}
+            <div className="space-y-4">
+              {teamHealth.map((metric, index) => (
+                <motion.div
+                  key={metric.category}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{metric.category}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-bold ${getScoreColor(metric.score)}`}>
+                        {metric.score}%
+                      </span>
+                      {getTrendIcon(metric.trend)}
+                    </div>
+                  </div>
+                  
+                  <Progress 
+                    value={metric.score} 
+                    className="h-2"
+                  />
+                  
+                  <div className="text-xs text-muted-foreground">
+                    {metric.details.slice(0, 2).map((detail, i) => (
+                      <div key={i} className="flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        {detail}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Static indicator */}
+            <div className="mt-4 pt-4 border-t text-center">
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <Activity className="w-3 h-3" />
+                Live ticker feed
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }
