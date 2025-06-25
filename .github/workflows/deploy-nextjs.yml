@@ -41,15 +41,13 @@ jobs:
           cd frontend
           NODE_ENV=production npm run build
 
-      - name: Add fallback files
+      - name: Verify build output
         run: |
-          # Copy the basic index.html as fallback
-          cp index.html frontend/out/ 2>/dev/null || true
-          # Create a 404.html for better error handling
-          echo '<!DOCTYPE html><html><head><title>404</title></head><body><h1>Page Not Found</h1><p><a href="/Leadr/">Go to Home</a></p></body></html>' > frontend/out/404.html
           # List contents for debugging
           echo "Built files:"
           ls -la frontend/out/
+          echo "Main index.html content:"
+          head -5 frontend/out/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
