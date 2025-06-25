@@ -155,31 +155,16 @@ export function PredictiveInsights({
 
   // Load predictions
   useEffect(() => {
-    const loadPredictions = () => {
-      setIsLoading(true)
-      
-      setTimeout(() => {
-        const newPredictions = generatePredictions()
-        const newTeamHealth = generateTeamHealth()
-        
-        setPredictions(newPredictions)
-        setTeamHealth(newTeamHealth)
-        
-        // Calculate overall score
-        const avgScore = newTeamHealth.reduce((sum, metric) => sum + metric.score, 0) / newTeamHealth.length
-        setOverallScore(Math.round(avgScore))
-        
-        setIsLoading(false)
-      }, 1000)
-    }
-
-    loadPredictions()
+    const newPredictions = generatePredictions()
+    const newTeamHealth = generateTeamHealth()
     
-    if (refreshInterval > 0) {
-      const interval = setInterval(loadPredictions, refreshInterval)
-      return () => clearInterval(interval)
-    }
-  }, [department, timeRange, refreshInterval])
+    setPredictions(newPredictions)
+    setTeamHealth(newTeamHealth)
+    
+    // Calculate overall score
+    const avgScore = newTeamHealth.reduce((sum, metric) => sum + metric.score, 0) / newTeamHealth.length
+    setOverallScore(Math.round(avgScore))
+  }, [])
 
   const getSeverityColor = (severity: Prediction['severity']) => {
     switch (severity) {
