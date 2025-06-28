@@ -1,13 +1,10 @@
 import type { Config } from 'drizzle-kit'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 export default {
-  schema: './src/models/schema.ts',
+  schema: './src/models/sqliteSchema.ts',
   out: './drizzle',
-  driver: 'pg',
+  driver: 'better-sqlite3',
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL as string,
+    url: './data/leaderboard.db',
   },
 } satisfies Config

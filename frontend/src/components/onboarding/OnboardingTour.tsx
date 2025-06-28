@@ -20,6 +20,7 @@ export function OnboardingTour({ isActive, onComplete, onSkip }: OnboardingTourP
   const [run, setRun] = useState(false)
   const [stepIndex, setStepIndex] = useState(0)
   const [showTooltip, setShowTooltip] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   const steps: Step[] = [
     {
@@ -94,12 +95,17 @@ export function OnboardingTour({ isActive, onComplete, onSkip }: OnboardingTourP
     }
   ]
 
+  // Prevent hydration issues by only rendering on client
   useEffect(() => {
-    if (isActive) {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (isActive && isMounted) {
       setRun(true)
       setStepIndex(0)
     }
-  }, [isActive])
+  }, [isActive, isMounted])
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type, action, index } = data
@@ -117,7 +123,8 @@ export function OnboardingTour({ isActive, onComplete, onSkip }: OnboardingTourP
     onSkip()
   }
 
-  if (!isActive) return null
+  // Prevent hydration errors by only rendering on client
+  if (!isActive || !isMounted) return null
 
   return (
     <>

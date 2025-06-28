@@ -57,6 +57,24 @@ app.get('/health', (req, res) => {
   })
 })
 
+// Test endpoint to simulate activity
+app.post('/test/activity', (req, res) => {
+  const activity = {
+    type: 'metric_added',
+    message: 'John Doe just scored 150 points!',
+    user: {
+      firstName: 'John',
+      lastName: 'Doe',
+      avatar: null
+    },
+    metricType: 'points',
+    value: 150,
+    timestamp: new Date().toISOString()
+  }
+  io.emit('new-activity', activity)
+  res.json({ success: true, activity })
+})
+
 // WebSocket connection handling
 io.on('connection', (socket) => {
   logger.info(`Client connected: ${socket.id}`)
@@ -89,16 +107,32 @@ async function startServer() {
   try {
     await connectDatabase()
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       logger.info(`Server running on port ${PORT}`)
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`)
       logger.info(`Database: Connected`)
+      logger.info(`Server is actually listening on 0.0.0.0:${PORT}`)
+    })
+    
+    server.on('error', (error) => {
+      logger.error('Server error:', error)
     })
   } catch (error) {
     logger.error('Failed to start server:', error)
     process.exit(1)
   }
 }
+
+// Add global error handlers to catch silent crashes
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error)
+  process.exit(1)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
+  process.exit(1)
+})
 
 startServer()
 

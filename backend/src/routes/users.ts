@@ -1,5 +1,5 @@
 import express from 'express'
-import { userController } from '../controllers/userController'
+import { userController, avatarUpload } from '../controllers/userController'
 import { authenticateToken, requireRole } from '../middleware/auth'
 
 const router = express.Router()
@@ -7,9 +7,10 @@ const router = express.Router()
 // All routes require authentication
 router.use(authenticateToken)
 
-// Get users
+// Get users with enhanced filtering and metrics
 router.get('/', userController.getUsers)
 router.get('/:id', userController.getUserById)
+router.get('/:id/analytics', userController.getUserAnalytics)
 
 // Admin only routes
 router.post('/', requireRole(['admin']), userController.createUser)
@@ -18,5 +19,8 @@ router.delete('/:id', requireRole(['admin']), userController.deleteUser)
 
 // User status management
 router.put('/:id/status', requireRole(['admin', 'manager']), userController.updateUserStatus)
+
+// Avatar upload
+router.post('/:id/avatar', requireRole(['admin', 'manager']), avatarUpload.single('avatar'), userController.updateAvatar)
 
 export default router
